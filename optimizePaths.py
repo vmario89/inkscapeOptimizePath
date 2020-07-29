@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Copyright (C) 2017 Romain Testuz
 
@@ -25,8 +25,6 @@ import os
 import numpy
 import timeit
 
-# Trick to allow placing symbolic links in the inkscape extension folder
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import networkx as nx
 
 MAX_CONSECUTIVE_OVERWRITE_EDGE = 3
@@ -164,25 +162,18 @@ class Graph:
         return dfsEdges
 """
 
-
 class OptimizePaths(inkex.GenerateExtension):
     def __init__(self):
         inkex.Effect.__init__(self)
-        self.arg_parser.add_argument("-t", "--tolerance", type=float,
-                                     dest="tolerance", default=0.1,
-                                     help="the distance below which 2 nodes will be merged")
-        self.arg_parser.add_argument("-l", "--enableLog", type=inkex.Boolean,
-                                     dest="enableLog", default=False,
-                                     help="Enable logging")
-        self.arg_parser.add_argument("-o", "--overwriteRule", type=int,
-                                     dest="overwriteRule", default=1,
-                                     help="Options to control edge overwrite rules")
+        self.arg_parser.add_argument("-t", "--tolerance", type=float, default=0.1, help="the distance below which 2 nodes will be merged")
+        self.arg_parser.add_argument("-l", "--enableLog", type=inkex.Boolean, default=False, help="Enable logging")
+        self.arg_parser.add_argument("-o", "--overwriteRule", type=int, default=1, help="Options to control edge overwrite rules")
 
     def parseSVG(self):
         vertices = []
         edges = []
 
-        objects = self.svg.get_selected(inkex.PathElement)
+        objects = self.svg.selection.filter(inkex.PathElement).values()
 
         for node in objects:
             if node.tag == inkex.addNS('path', 'svg'):
@@ -565,7 +556,7 @@ class OptimizePaths(inkex.GenerateExtension):
     def generate(self):
         self.log("NetworkX version: " + nx.__version__)
         if int(nx.__version__[0]) < 2:
-            inkex.debug("NetworkX version is: {} but should be >= 2.0.".format(nx.__version__))
+            inkex.utils.debug("NetworkX version is: {} but should be >= 2.0.".format(nx.__version__))
             return
         self.log("Python version: " + sys.version)
 
